@@ -1,6 +1,8 @@
 # Natural Adversarial Examples
 
-We introduce natural adversarial examples -- real-world, unmodified, and naturally occurring examples that cause classifier accuracy to significantly degrade. Download the natural adversarial example dataset ImageNet-A [here](https://people.eecs.berkeley.edu/~hendrycks/imagenet-a.tar).
+We introduce natural adversarial examples -- real-world, unmodified, and naturally occurring examples that cause classifier accuracy to significantly degrade.
+
+Download the natural adversarial example dataset ImageNet-A __[here](https://people.eecs.berkeley.edu/~hendrycks/imagenet-a.tar)__.
 
 Some natural adverarial examples are shown in the following figure with the correct class, predicted class, and confidence:
 
