@@ -15,6 +15,6 @@ If you find this useful in your research, please consider citing:
     @article{hendrycks2019nae,
       title={Natural Adversarial Examples},
       author={Dan Hendrycks and Kevin Zhao and Steven Basart and Jacob Steinhardt and Dawn Song},
-      journal={arXiv preprint},
+      journal={arXiv preprint arXiv:1907.07174},
       year={2019}
     }
