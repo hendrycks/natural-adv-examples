@@ -103,8 +103,8 @@ def print_measures(rms, aurra_metric, mad, sf1, method_name='Baseline'):
     print('\t\t\t\t\t\t\t' + method_name)
     print('RMS Calib Error (%): \t\t{:.2f}'.format(100 * rms))
     print('AURRA (%): \t\t\t{:.2f}'.format(100 * aurra))
-    print('MAD Calib Error (%): \t\t{:.2f}'.format(100 * mad))
-    print('Soft F1 Score (%):   \t\t{:.2f}'.format(100 * sf1))
+    # print('MAD Calib Error (%): \t\t{:.2f}'.format(100 * mad))
+    # print('Soft F1 Score (%):   \t\t{:.2f}'.format(100 * sf1))
 
 
 def show_calibration_results(confidence, correct, method_name='Baseline'):
@@ -116,9 +116,9 @@ def show_calibration_results(confidence, correct, method_name='Baseline'):
     print('AURRA (%): \t\t\t{:.2f}'.format(
         100 * aurra(confidence, correct)))
 
-    print('MAD Calib Error (%): \t\t{:.2f}'.format(
-        100 * calib_err(confidence, correct, p='1')))
+    # print('MAD Calib Error (%): \t\t{:.2f}'.format(
+    #     100 * calib_err(confidence, correct, p='1')))
 
-    print('Soft F1-Score (%): \t\t{:.2f}'.format(
-        100 * soft_f1(confidence, correct)))
+    # print('Soft F1-Score (%): \t\t{:.2f}'.format(
+    #     100 * soft_f1(confidence, correct)))
 
