@@ -4,7 +4,7 @@ We introduce [natural adversarial examples](https://arxiv.org/abs/1907.07174) --
 
 __[Download the natural adversarial example dataset ImageNet-A for image classifiers here](https://people.eecs.berkeley.edu/~hendrycks/imagenet-a.tar).__
 
-__[Download the natural adversarial example dataset ImageNet-A for out-of-distribution detectors here](https://people.eecs.berkeley.edu/~hendrycks/imagenet-o.tar).__
+__[Download the natural adversarial example dataset ImageNet-O for out-of-distribution detectors here](https://people.eecs.berkeley.edu/~hendrycks/imagenet-o.tar).__
 
 <img align="center" src="examples.png" width="400">
 Natural adversarial examples from ImageNet-A and ImageNet-O. The black text is the actual class, and
