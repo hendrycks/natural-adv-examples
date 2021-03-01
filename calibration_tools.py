@@ -1,5 +1,6 @@
 import numpy as np
-
+import sklearn.metrics as sk
+recall_level_default = 0.95
 
 def calib_err(confidence, correct, p='2', beta=100):
     # beta is target bin size
@@ -90,15 +91,6 @@ def tune_temp(logits, labels, binary_search=True, lower=0.2, upper=5.0, eps=0.00
     return t
 
 
-def get_measures(confidence, correct):
-    rms = calib_err(confidence, correct, p='2')
-    aurra_metric = aurra(confidence, correct)
-    mad = calib_err(confidence, correct, p='1')  # secondary metric
-    sf1 = soft_f1(confidence, correct)    # secondary metric
-
-    return rms, aurra_metric, mad, sf1
-
-
 def print_measures(rms, aurra_metric, mad, sf1, method_name='Baseline'):
     print('\t\t\t\t\t\t\t' + method_name)
     print('RMS Calib Error (%): \t\t{:.2f}'.format(100 * rms))
@@ -122,3 +114,89 @@ def show_calibration_results(confidence, correct, method_name='Baseline'):
     # print('Soft F1-Score (%): \t\t{:.2f}'.format(
     #     100 * soft_f1(confidence, correct)))
 
+def fpr_and_fdr_at_recall(y_true, y_score, recall_level=recall_level_default, pos_label=None):
+    classes = np.unique(y_true)
+    if (pos_label is None and
+            not (np.array_equal(classes, [0, 1]) or
+                     np.array_equal(classes, [-1, 1]) or
+                     np.array_equal(classes, [0]) or
+                     np.array_equal(classes, [-1]) or
+                     np.array_equal(classes, [1]))):
+        raise ValueError("Data is not binary and pos_label is not specified")
+    elif pos_label is None:
+        pos_label = 1.
+
+    # make y_true a boolean vector
+    y_true = (y_true == pos_label)
+
+    # sort scores and corresponding truth values
+    desc_score_indices = np.argsort(y_score, kind="mergesort")[::-1]
+    y_score = y_score[desc_score_indices]
+    y_true = y_true[desc_score_indices]
+
+    # y_score typically has many tied values. Here we extract
+    # the indices associated with the distinct values. We also
+    # concatenate a value for the end of the curve.
+    distinct_value_indices = np.where(np.diff(y_score))[0]
+    threshold_idxs = np.r_[distinct_value_indices, y_true.size - 1]
+
+    # accumulate the true positives with decreasing threshold
+    tps = stable_cumsum(y_true)[threshold_idxs]
+    fps = 1 + threshold_idxs - tps      # add one because of zero-based indexing
+
+    thresholds = y_score[threshold_idxs]
+
+    recall = tps / tps[-1]
+
+    last_ind = tps.searchsorted(tps[-1])
+    sl = slice(last_ind, None, -1)      # [last_ind::-1]
+    recall, fps, tps, thresholds = np.r_[recall[sl], 1], np.r_[fps[sl], 0], np.r_[tps[sl], 0], thresholds[sl]
+
+    cutoff = np.argmin(np.abs(recall - recall_level))
+
+    return fps[cutoff] / (np.sum(np.logical_not(y_true)))   # , fps[cutoff]/(fps[cutoff] + tps[cutoff])
+
+def get_measures(_pos, _neg, recall_level=recall_level_default):
+    pos = np.array(_pos[:]).reshape((-1, 1))
+    neg = np.array(_neg[:]).reshape((-1, 1))
+    examples = np.squeeze(np.vstack((pos, neg)))
+    labels = np.zeros(len(examples), dtype=np.int32)
+    labels[:len(pos)] += 1
+
+    auroc = sk.roc_auc_score(labels, examples)
+    aupr = sk.average_precision_score(labels, examples)
+    fpr = fpr_and_fdr_at_recall(labels, examples, recall_level)
+
+    return auroc, aupr, fpr
+
+
+def print_measures_old(auroc, aupr, fpr, method_name='Ours', recall_level=recall_level_default):
+    print('\t\t\t' + method_name)
+    print('FPR{:d}:\t{:.2f}'.format(int(100 * recall_level), 100 * fpr))
+    print('AUROC: \t{:.2f}'.format(100 * auroc))
+    print('AUPR:  \t{:.2f}'.format(100 * aupr))
+
+
+def print_measures_with_std(aurocs, auprs, fprs, method_name='Ours', recall_level=recall_level_default):
+    print('\t\t\t' + method_name)
+    print('FPR{:d}:\t{:.2f}\t+/- {:.2f}'.format(int(100 * recall_level), 100 * np.mean(fprs), 100 * np.std(fprs)))
+    print('AUROC: \t{:.2f}\t+/- {:.2f}'.format(100 * np.mean(aurocs), 100 * np.std(aurocs)))
+    print('AUPR:  \t{:.2f}\t+/- {:.2f}'.format(100 * np.mean(auprs), 100 * np.std(auprs)))
+
+
+def get_and_print_results(out_score, in_score, num_to_avg=1):
+
+    aurocs, auprs, fprs = [], [], []
+    #for _ in range(num_to_avg):
+    #    out_score = get_ood_scores(ood_loader)
+    measures = get_measures(out_score, in_score)
+    aurocs.append(measures[0]); auprs.append(measures[1]); fprs.append(measures[2])
+
+    auroc = np.mean(aurocs); aupr = np.mean(auprs); fpr = np.mean(fprs)
+    #auroc_list.append(auroc); aupr_list.append(aupr); fpr_list.append(fpr)
+
+    #if num_to_avg >= 5:
+    #    print_measures_with_std(aurocs, auprs, fprs, method_name='Ours')
+    #else:
+    #    print_measures(auroc, aupr, fpr, method_name='Ours')
+    return auroc, aupr, fpr 
