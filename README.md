@@ -17,9 +17,9 @@ are anomalous. Many natural adversarial examples lead to wrong predictions, desp
 
 If you find this useful in your research, please consider citing:
 
-    @article{hendrycks2019nae,
+    @article{hendrycks2021nae,
       title={Natural Adversarial Examples},
       author={Dan Hendrycks and Kevin Zhao and Steven Basart and Jacob Steinhardt and Dawn Song},
-      journal={arXiv preprint arXiv:1907.07174},
-      year={2019}
+      journal={CVPR},
+      year={2021}
     }
