@@ -12,7 +12,7 @@ def calib_err(confidence, correct, p='2', beta=100):
 
     cerr = 0
     total_examples = len(confidence)
-    for i in range(len(bins) - 1):
+    for i in range(len(bins)):
         bin_confidence = confidence[bins[i][0]:bins[i][1]]
         bin_correct = correct[bins[i][0]:bins[i][1]]
         num_examples_in_bin = len(bin_confidence)
